@@ -1,0 +1,11 @@
+Flask
+Flask-SQLAlchemy
+pandas
+scikit-learn
+joblib
+requests
+python-dotenv
+apscheduler
+folium
+twilio
+tensorflow

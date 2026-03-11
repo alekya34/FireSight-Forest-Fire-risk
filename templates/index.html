@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ignis | AI Fire Predictor</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- BootStrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --primary: #ff4d00; /* Vibrant Orange */
+            --accent: #00e5ff; /* Cyan Accent */
+            --glass-bg: rgba(18, 20, 24, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: url('/static/bg.png') no-repeat center center fixed; 
+            background-size: cover;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Cinematic Overlay */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.95) 100%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px) saturate(140%);
+            -webkit-backdrop-filter: blur(24px) saturate(140%);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 3.5rem;
+            box-shadow: 0 40px 80px -12px rgba(0, 0, 0, 0.7);
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            overflow: hidden;
+            animation: cardFloat 1s ease-out;
+        }
+
+        @keyframes cardFloat {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Decorative Glow */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 77, 0, 0.1), transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Typography */
+        .brand-text {
+            font-weight: 700;
+            font-size: 3rem;
+            letter-spacing: -2px;
+            margin-bottom: 0;
+            background: linear-gradient(to right, #ffffff, #aaaaaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Floating Input Fields */
+        .input-group-custom {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 16px;
+            padding: 1.2rem 1rem 0.5rem 1rem; /* pt pb pl pr */
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: auto;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 77, 0, 0.15);
+            color: white;
+            outline: none;
+        }
+
+        .form-control::placeholder { color: transparent; }
+
+        .form-label-float {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: var(--text-muted);
+            font-size: 1rem;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus ~ .form-label-float,
+        .form-control:not(:placeholder-shown) ~ .form-label-float {
+            top: 0.4rem;
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Action Button */
+        .btn-predict {
+            background: linear-gradient(135deg, var(--primary) 0%, #ff8c00 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 1.2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            width: 100%;
+            margin-top: 1rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(255, 77, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 77, 0, 0.5);
+            color: white;
+        }
+        
+        .btn-predict:active { transform: translateY(1px); }
+
+        /* Tools Menu */
+        .tools-menu {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        .btn-tool {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.6rem 1.2rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-tool:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Result Box */
+        .result-box {
+            margin-top: 2.5rem;
+            padding: 1.5rem;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: none; /* hidden by default */
+            animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 0.6rem 2rem;
+            border-radius: 100px;
+            font-weight: 800;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+        
+        .risk-Low { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); }
+        .risk-Moderate { background: linear-gradient(135deg, #f1c40f, #f39c12); color: #fff; box-shadow: 0 10px 30px rgba(241, 196, 15, 0.3); }
+        .risk-High { background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; box-shadow: 0 10px 30px rgba(230, 126, 34, 0.4); }
+        .risk-Extreme { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; box-shadow: 0 10px 30px rgba(231, 76, 60, 0.5); }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .weather-item {
+            background: rgba(255,255,255,0.03);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .weather-item:hover { border-color: rgba(255,255,255,0.1); }
+        .weather-item i { font-size: 1.2rem; margin-bottom: 0.3rem; display: block; opacity: 0.8; }
+        .weather-val { color: white; font-weight: 600; font-size: 1.1rem; }
+
+        /* Loader */
+        .spinner-border { width: 1.2rem; height: 1.2rem; margin-right: 0.5rem; border-width: 2px; }
+
+        /* Status Colors */
+        .text-success { color: #2ecc71 !important; }
+        .text-danger { color: #e74c3c !important; }
+        .text-info { color: #3498db !important; }
+
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+
+    <!-- Tools Top Right -->
+    <div class="tools-menu">
+        <a href="/heatmap" class="btn-tool"><i class="bi bi-map"></i> Heatmap</a>
+    </div>
+
+    <!-- Main Card -->
+    <div class="glass-card text-center">
+        <h1 class="brand-text">FIRESIGHT</h1>
+        <p class="subtitle">Advanced Forest Fire Risk Assessment System</p>
+
+        <form id="predictForm" onsubmit="handlePredict(event)">
+            
+            <div class="input-group-custom">
+                <input type="number" step="any" id="lat" class="form-control" placeholder="X" required>
+                <label class="form-label-float">Latitude (e.g. 40.71)</label>
+            </div>
+
+            <div class="input-group-custom">
+                <input type="number" step="any" id="lon" class="form-control" placeholder="X" required>
+                <label class="form-label-float">Longitude (e.g. -74.00)</label>
+            </div>
+
+            <div class="input-group-custom">
+                <input type="email" id="userEmail" class="form-control" placeholder="X">
+                <label class="form-label-float">Email for Report </label>
+            </div>
+
+            <button type="submit" id="mainBtn" class="btn btn-predict">
+                Analyze Risk
+            </button>
+        </form>
+
+        <!-- Result Area -->
+        <div id="resultArea" class="result-box">
+            <div id="riskBadge" class="risk-badge">Low Risk</div>
+            
+            <div class="weather-grid">
+                <div class="weather-item">
+                    <i class="bi bi-thermometer-half"></i> 
+                    <div class="weather-val"><span id="resTemp">--</span>°C</div>
+                </div>
+                <div class="weather-item">
+                    <i class="bi bi-droplet"></i> 
+                    <div class="weather-val"><span id="resHum">--</span>%</div>
+                </div>
+                <div class="weather-item">
+                    <i class="bi bi-wind"></i> 
+                    <div class="weather-val"><span id="resWind">--</span>m/s</div>
+                </div>
+                <div class="weather-item">
+                    <i class="bi bi-cloud-rain"></i> 
+                    <div class="weather-val"><span id="resRain">--</span>mm</div>
+                </div>
+            </div>
+            
+            <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 text-white-50 small">
+                AI Confidence Score: <span id="resProb" class="text-white fw-bold">--</span>
+                <br>
+                <span id="emailStatus" class="d-block mt-2"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function handlePredict(e) {
+            e.preventDefault();
+            const lat = document.getElementById('lat').value;
+            const lon = document.getElementById('lon').value;
+            const email = document.getElementById('userEmail').value;
+            const btn = document.getElementById('mainBtn');
+            const resultArea = document.getElementById('resultArea');
+
+            // UI Loading State
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+            btn.disabled = true;
+            resultArea.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ lat: lat, lon: lon, email: email })
+                });
+                
+                const data = await res.json();
+                
+                if(data.error) throw new Error(data.error);
+
+                // Update UI
+                document.getElementById('resTemp').innerText = data.weather.temp;
+                document.getElementById('resHum').innerText = data.weather.humidity;
+                document.getElementById('resWind').innerText = data.weather.wind;
+                document.getElementById('resRain').innerText = data.weather.rainfall;
+                document.getElementById('resProb').innerText = (data.probability * 100).toFixed(1) + '%';
+                
+                if(data.email_monitor) {
+                    const statusSpan = document.getElementById('emailStatus');
+                    statusSpan.innerText = "Email Report: " + data.email_monitor;
+                    if(data.email_monitor === "Sent") {
+                        statusSpan.className = "d-block mt-2 fw-bold text-success";
+                    } else if(data.email_monitor.startsWith("Failed")) {
+                        statusSpan.className = "d-block mt-2 fw-bold text-danger";
+                    } else {
+                        statusSpan.className = "d-block mt-2 text-info";
+                    }
+                } else {
+                    document.getElementById('emailStatus').innerText = "";
+                }
+                
+                const badge = document.getElementById('riskBadge');
+                badge.className = 'risk-badge risk-' + data.risk;
+                badge.innerText = data.risk + " Risk";
+
+                resultArea.style.display = 'block';
+
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
