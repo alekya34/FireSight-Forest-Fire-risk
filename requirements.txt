@@ -8,4 +8,5 @@ python-dotenv
 apscheduler
 folium
 twilio
-tensorflow
+tensorflow==2.15.0
+gunicorn
