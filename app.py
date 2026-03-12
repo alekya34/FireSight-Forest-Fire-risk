@@ -51,7 +51,8 @@ from email.mime.text import MIMEText
 import numpy as np
 
 # Load environment variables from .env
-load_dotenv()
+dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+load_dotenv(dotenv_path, override=True)
 
 # ---------------- Config ----------------
 OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', '').strip()
